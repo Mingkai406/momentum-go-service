@@ -2,10 +2,12 @@ FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod ./
+COPY go.mod go.sum* ./
+RUN go mod download || true
+
 COPY *.go ./
 
-RUN go build -o scheduler .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o scheduler .
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
